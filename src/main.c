@@ -16,6 +16,7 @@
 #define PASSWORD_LENGTH 4
 #define PASSWORD_TIMEOUT_S 5     // 5 seconds
 #define PASSWORD_TIMEOUT_MS 5000 // 5 seconds
+
 #define MIN_FAN_SPEED 0
 #define MAX_FAN_SPEED 100
 
@@ -29,10 +30,16 @@ enum DoorState
 };
 enum SecurityState
 {
-    DISARMED,       // Door open state will NOT set off alarm
-    ARMED,          // Door open WILL set off alarm
-    PASSWORD_ENTRY, // Door has just been opened, correct password sends to DISARMED, incorrect password sends to ALARM
-    ALARM           // buzzer turned on, will not disable unless correct password is entered
+    DISARMED, // Door open state will NOT set off alarm
+    ARMED,    // Door open WILL set off alarm
+    PASSWORD, // Door has just been opened, correct password sends to DISARMED, incorrect password sends to ALARM
+    ALARM     // buzzer turned on, will not disable unless correct password is entered
+};
+
+enum KeypadState
+{
+    TEMPERATURE_ENTRY,
+    PASSWORD_ENTRY
 };
 
 volatile float CURRENT_TEMPERATURE = 0; // Celsius
@@ -44,8 +51,9 @@ volatile int FAN_SPEED = MIN_FAN_SPEED; // 0 - 100% speed range
 
 volatile int BUZZER_FREQ = MAX_BUZZER_FREQ; // modulating frequency for buzzer
 
-volatile enum DoorState DOOR_STATE = CLOSED;           // door state
-volatile enum SecurityState SECURITY_STATE = DISARMED; // security state
+volatile enum DoorState DOOR_STATE = CLOSED;                // OPEN, CLOSED
+volatile enum SecurityState SECURITY_STATE = DISARMED;      // DISARMED, ARMED, PASSWORD, ALARM
+volatile enum KeypadState KEYPAD_STATE = TEMPERATURE_ENTRY; // TEMPERATURE_ENTRY, PASSWORD_ENTRY
 
 void nano_wait(unsigned int n);
 void init_tim1_buzzer_pwm();
@@ -130,6 +138,31 @@ int check_password_digit(int digit, int position)
     return (CORRECT_PASSWORD / (int)pow(10, PASSWORD_LENGTH - position - 1)) % 10 == digit;
 }
 
+/**
+ * @brief Updates the keypad state based on the current SECURITY_STATE and DOOR_STATE
+ */
+void update_keypad_state()
+{
+    switch (SECURITY_STATE)
+    {
+    case DISARMED:
+        KEYPAD_STATE = TEMPERATURE_ENTRY;
+        break;
+    case ARMED:
+        if (DOOR_STATE == OPEN)
+            KEYPAD_STATE = PASSWORD_ENTRY;
+        else
+            KEYPAD_STATE = TEMPERATURE_ENTRY;
+        break;
+    case PASSWORD:
+        KEYPAD_STATE = PASSWORD_ENTRY;
+        break;
+    case ALARM:
+        KEYPAD_STATE = PASSWORD_ENTRY;
+        break;
+    }
+}
+
 int main()
 {
     /**
@@ -146,7 +179,7 @@ int main()
      * |----------------|------------------------|------------------------|
      * | DISARMED       | do nothing             | do nothing             |
      * | ARMED          | goto PASSWORD_ENTRY    | do nothing             |
-     * | PASSWORD_ENTRY | correct: goto DISARMED | correct: goto DISARMED |
+     * | PASSWORD       | correct: goto DISARMED | correct: goto DISARMED |
      * |                | incorrect: goto ALARM  | incorrect: goto ALARM  |
      * |                | timeout: goto ALARM    | timeout: goto ALARM    |
      * | ALARM          | wait for password      | wait for password      |
