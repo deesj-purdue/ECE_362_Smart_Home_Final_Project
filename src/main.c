@@ -13,24 +13,21 @@
 
 /* GLOBAL VARIABLES */
 
-void init_tim1_buzzer_pwm();
-void set_buzzer(enum SECURITY_STATE state);
-int check_password_digit(int digit, int position);
-
 #define PASSWORD_LENGTH 4
-#define PASSWORD_TIMEOUT_S 5           // 5 seconds
-#define PASSWORD_TIMEOUT_MS 5000       // 5 seconds
-#define PASSWORD_TIMEOUT_NS 5000000000 // 5 seconds
-
+#define PASSWORD_TIMEOUT_S 5     // 5 seconds
+#define PASSWORD_TIMEOUT_MS 5000 // 5 seconds
 #define MIN_FAN_SPEED 0
 #define MAX_FAN_SPEED 100
 
-enum DOOR_STATE
+#define MAX_BUZZER_FREQ 1000
+#define MIN_BUZZER_FREQ 500
+
+enum DoorState
 {
     OPEN,
     CLOSED
 };
-enum SECURITY_STATE
+enum SecurityState
 {
     DISARMED,       // Door open state will NOT set off alarm
     ARMED,          // Door open WILL set off alarm
@@ -43,10 +40,17 @@ volatile float TARGET_TEMPERATURE = 0;  // Celsius
 
 volatile int CORRECT_PASSWORD = 1234; // 4 digit pin
 
-volatile int FAN_SPEED = 0; // 0 - 100% speed range
+volatile int FAN_SPEED = MIN_FAN_SPEED; // 0 - 100% speed range
 
-volatile enum DOOR_STATE DOOR = CLOSED;           // door state
-volatile enum SECURITY_STATE SECURITY = DISARMED; // security state
+volatile int BUZZER_FREQ = MAX_BUZZER_FREQ; // modulating frequency for buzzer
+
+volatile enum DoorState DOOR_STATE = CLOSED;           // door state
+volatile enum SecurityState SECURITY_STATE = DISARMED; // security state
+
+void nano_wait(unsigned int n);
+void init_tim1_buzzer_pwm();
+void set_buzzer();
+int check_password_digit(int digit, int position);
 
 /* PINS USED */
 /**
@@ -54,6 +58,13 @@ volatile enum SECURITY_STATE SECURITY = DISARMED; // security state
  *
  * whichever pins are used for the keypad
  */
+
+void nano_wait(unsigned int n)
+{
+    asm("        mov r0,%0\n"
+        "repeat: sub r0,#83\n"
+        "        bgt repeat\n" : : "r"(n) : "r0", "cc");
+}
 
 /**
  * @brief Initialize TIM1 for PWM buzzer output
@@ -69,27 +80,40 @@ void init_tim1_buzzer_pwm()
     /* setup TIM1 */
     RCC->APB2ENR |= RCC_APB2ENR_TIM1EN;
 
-    TIM1->BDTR |= TIM_BDTR_MOE;
+    TIM1->BDTR |= TIM_BDTR_MOE; // enable main output
+    TIM1->DIER |= TIM_DIER_UIE; // enable update interrupt
 
-    TIM1->PSC = 4800 - 1; // 48 MHz / 4800 = 10 kHz
-    TIM1->ARR = 10 - 1;   // 10 kHz / 10 = 1 kHz
-    TIM1->CCR1 = 500 - 1; // 50% duty cycle
+    TIM1->PSC = 48 - 1;                   // 48 MHz / 4800 = 10 kHz
+    TIM1->ARR = MAX_BUZZER_FREQ - 1;      // 10 kHz / 10 = 1 kHz
+    TIM1->CCR1 = MAX_BUZZER_FREQ / 2 - 1; // 50% duty cycle
 
     TIM1->CCMR1 |= TIM_CCMR1_OC1M_1 | TIM_CCMR1_OC1M_2; // set PWM mode 1 for OC1M
     TIM1->CCER |= TIM_CCER_CC1E;                        // enable OC1
+
+    NVIC_EnableIRQ(TIM1_BRK_UP_TRG_COM_IRQn);
 
     // Purposely not enabling TIM1 here, will be enabled/disabled in set_buzzer
 }
 
 /**
- * @brief Turns buzzer on or off depending on SECURITY_STATE
- * @param state: the state of the security system
- *
- * may or may not change this to a bool input instead of state
+ * @brief TIM1 interrupt handler for buzzer frequency modulation
  */
-void set_buzzer(enum SECURITY_STATE state)
+void TIM1_BRK_UP_TRG_COM_IRQHandler()
 {
-    if (state == ALARM)
+    TIM1->SR &= ~TIM_SR_UIF; // clear update interrupt flag
+    TIM1->ARR = BUZZER_FREQ;
+    if (BUZZER_FREQ < MIN_BUZZER_FREQ)
+        BUZZER_FREQ = MAX_BUZZER_FREQ;
+    else
+        BUZZER_FREQ -= 1; // increment frequency
+}
+
+/**
+ * @brief Turns buzzer on or off depending on SECURITY_STATE
+ */
+void set_buzzer()
+{
+    if (SECURITY_STATE == ALARM)
         TIM1->CR1 |= TIM_CR1_CEN; // enable TIM1, activates buzzer
     else
         TIM1->CR1 &= ~TIM_CR1_CEN; // disable TIM1, deactivates buzzer
@@ -132,6 +156,11 @@ int main()
 
     /* init all peripherals */
     init_tim1_buzzer_pwm();
+    SECURITY_STATE = ALARM;
+    set_buzzer();
+    nano_wait(1000000000); // 1 second
+    SECURITY_STATE = DISARMED;
+    set_buzzer();
 
     for (;;)
         asm("wfi");
