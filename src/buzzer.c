@@ -34,7 +34,7 @@ void TIM1_BRK_UP_TRG_COM_IRQHandler()
     if (BUZZER_FREQ < MIN_BUZZER_FREQ)
         BUZZER_FREQ = MAX_BUZZER_FREQ;
     else
-        BUZZER_FREQ -= 1; // increment frequency
+        BUZZER_FREQ -= 2; // increment frequency
 }
 
 void set_buzzer()

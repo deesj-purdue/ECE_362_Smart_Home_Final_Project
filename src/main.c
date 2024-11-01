@@ -25,11 +25,15 @@ volatile enum DoorState DOOR_STATE = CLOSED;                // OPEN, CLOSED
 volatile enum SecurityState SECURITY_STATE = DISARMED;      // DISARMED, ARMED, PASSWORD, ALARM
 volatile enum KeypadState KEYPAD_STATE = TEMPERATURE_ENTRY; // TEMPERATURE_ENTRY, PASSWORD_ENTRY
 
-/* PINS USED */
 /**
- * PA8: tim1 for buzzer
- *
- * whichever pins are used for the keypad
+ * PINS USED:
+ * - PA8: Buzzer PWM
+ * 
+ * TIMERS USED:
+ * - TIM1: Buzzer PWM
+ * 
+ * PERIPHERALS USED:
+ * 
  */
 
 int main()
