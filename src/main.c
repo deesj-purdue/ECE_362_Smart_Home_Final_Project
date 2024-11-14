@@ -62,11 +62,13 @@ int main()
 
     /* init all peripherals */
     init_tim1_buzzer_pwm();
+    init_tim7_keypad();
     SECURITY_STATE = ALARM;
     set_buzzer();
     nano_wait(1000000000); // 1 second
     SECURITY_STATE = DISARMED;
     set_buzzer();
+    // get_password_string();
 
     for (;;)
         asm("wfi");

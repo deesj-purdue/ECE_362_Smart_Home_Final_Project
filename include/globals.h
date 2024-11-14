@@ -48,4 +48,12 @@ extern volatile enum DoorState DOOR_STATE;                // OPEN, CLOSED
 extern volatile enum SecurityState SECURITY_STATE;      // DISARMED, ARMED, PASSWORD, ALARM
 extern volatile enum KeypadState KEYPAD_STATE; // TEMPERATURE_ENTRY, PASSWORD_ENTRY
 
+extern volatile uint8_t col;
+extern volatile char* keymap;
+extern volatile uint8_t hist[16];
+extern volatile char queue[2];  // A two-entry queue of button press/release events.
+extern volatile int qin;        // Which queue entry is next for input
+extern volatile int qout;       // Which queue entry is next for output
+extern volatile char password_entry_str[5];
+
 #endif // GLOBALS_H
