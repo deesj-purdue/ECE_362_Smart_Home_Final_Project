@@ -8,8 +8,14 @@
 - Temperature Sensor
 - Fan Control
 - Motor Circuit
-- Keypad
 - LCD
 
 # ✅ Completed
 - Buzzer PWM (Jackson)
+- Keypad (Grant)
+- Security State Logic (Jackson)
+
+# ⏚ Pins in use
+- PC0-7 in use by keypad
+- PB5-7 in use by LEDs
+- PA8 in use by Buzzer

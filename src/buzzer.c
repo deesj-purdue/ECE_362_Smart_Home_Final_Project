@@ -24,7 +24,7 @@ void init_tim1_buzzer_pwm()
     NVIC_EnableIRQ(TIM1_BRK_UP_TRG_COM_IRQn);
     NVIC_SetPriority(TIM1_BRK_UP_TRG_COM_IRQn, 0);
 
-    // Purposely not enabling TIM1 here, will be enabled/disabled in set_buzzer
+    // Purposely not enabling TIM1 here, will be enabled/disabled in update_buzzer
 }
 
 void TIM1_BRK_UP_TRG_COM_IRQHandler()
@@ -37,10 +37,55 @@ void TIM1_BRK_UP_TRG_COM_IRQHandler()
         BUZZER_FREQ -= 2; // increment frequency
 }
 
-void set_buzzer()
+void update_buzzer()
 {
     if (SECURITY_STATE == ALARM)
         TIM1->CR1 |= TIM_CR1_CEN; // enable TIM1, activates buzzer
     else
         TIM1->CR1 &= ~TIM_CR1_CEN; // disable TIM1, deactivates buzzer
+}
+
+void init_led()
+{
+    RCC->AHBENR |= RCC_AHBENR_GPIOBEN;
+
+    GPIOB->MODER |= 0b01 << GPIO_MODER_MODER5_Pos | 0b01 << GPIO_MODER_MODER6_Pos | 0b01 << GPIO_MODER_MODER7_Pos; // set PB5, 6, 7 to output
+    GPIOB->PUPDR |= 0b10 << GPIO_PUPDR_PUPDR5_Pos | 0b10 << GPIO_PUPDR_PUPDR6_Pos | 0b10 << GPIO_PUPDR_PUPDR7_Pos; // pull down PB5, 6, 7
+
+    GPIOB->ODR |= 0b111 << 5; // turn off LEDs
+}
+
+void set_led(int led, int state)
+{
+    if (state)
+        GPIOB->ODR &= ~(1 << (led + 5)); // turn on LED
+    else
+        GPIOB->ODR |= 1 << (led + 5); // turn off LED
+}
+
+void update_led()
+{
+    switch (SECURITY_STATE)
+    {
+    case DISARMED:
+        set_led(0, 0);
+        set_led(1, 0);
+        set_led(2, 0);
+        break;
+    case ARMED:
+        set_led(0, 0);
+        set_led(1, 1);
+        set_led(2, 0);
+        break;
+    case PASSWORD:
+        set_led(0, 0);
+        set_led(1, 0);
+        set_led(2, 1);
+        break;
+    case ALARM:
+        set_led(0, 1);
+        set_led(1, 0);
+        set_led(2, 0);
+        break;
+    }
 }
