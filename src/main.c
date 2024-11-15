@@ -10,6 +10,7 @@
 #include "helpers.h"
 #include "buzzer.h"
 #include "keypad.h"
+#include "tft.h"
 
 volatile float CURRENT_TEMPERATURE = 0; // Celsius
 
@@ -104,6 +105,10 @@ int main()
     boot_sequence();
 
     SECURITY_STATE = PASSWORD; // DEBUG initial state
+
+    // parse_command("lcd_init");
+    // parse_command("clear 0000");
+    // parse_command("drawfillrect 0 0 200 200 0f0f");
 
     for (;;)
     {
