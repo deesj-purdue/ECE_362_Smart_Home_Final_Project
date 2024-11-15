@@ -2,8 +2,11 @@
 #define GLOBALS_H
 
 #include "stm32f0xx.h"
+#include "helpers.h"
 #include <stdlib.h>
 #include <math.h>
+#include <stdbool.h>
+#include <string.h>
 
 #define PASSWORD_LENGTH 4
 #define PASSWORD_TIMEOUT_S 5     // 5 seconds
@@ -12,8 +15,11 @@
 #define MIN_FAN_SPEED 0
 #define MAX_FAN_SPEED 100
 
-#define MAX_BUZZER_FREQ 1000
 #define MIN_BUZZER_FREQ 500
+#define MAX_BUZZER_FREQ 1000
+
+#define MIN_TEMPERATURE 0
+#define MAX_TEMPERATURE 99
 
 enum DoorState
 {
@@ -35,25 +41,26 @@ enum KeypadState
 };
 
 extern volatile float CURRENT_TEMPERATURE; // Celsius
-
 extern volatile float TARGET_TEMPERATURE;  // Celsius
 
-extern volatile int CORRECT_PASSWORD; // 4 digit pin
+extern volatile char CORRECT_PASSWORD[PASSWORD_LENGTH + 1]; // 4 digit pin
+extern volatile bool KEYPAD_TIMEOUT;                        // true if keypad entry entry timed out (breaks out of keypad entry)
 
 extern volatile int FAN_SPEED; // 0 - 100% speed range
 
 extern volatile int BUZZER_FREQ; // modulating frequency for buzzer
 
-extern volatile enum DoorState DOOR_STATE;                // OPEN, CLOSED
-extern volatile enum SecurityState SECURITY_STATE;      // DISARMED, ARMED, PASSWORD, ALARM
-extern volatile enum KeypadState KEYPAD_STATE; // TEMPERATURE_ENTRY, PASSWORD_ENTRY
+extern volatile enum DoorState DOOR_STATE;         // OPEN, CLOSED
+extern volatile enum SecurityState SECURITY_STATE; // DISARMED, ARMED, PASSWORD, ALARM
+extern volatile enum KeypadState KEYPAD_STATE;     // TEMPERATURE_ENTRY, PASSWORD_ENTRY
 
 extern volatile uint8_t col;
-extern volatile char* keymap;
+extern volatile char *keymap;
 extern volatile uint8_t hist[16];
-extern volatile char queue[2];  // A two-entry queue of button press/release events.
-extern volatile int qin;        // Which queue entry is next for input
-extern volatile int qout;       // Which queue entry is next for output
-extern volatile char password_entry_str[5];
+extern volatile char queue[2]; // A two-entry queue of button press/release events.
+extern volatile int qin;       // Which queue entry is next for input
+extern volatile int qout;      // Which queue entry is next for output
+extern volatile char password_entry_str[PASSWORD_LENGTH + 1];
+extern volatile char temperature_entry_str[3];
 
 #endif // GLOBALS_H
