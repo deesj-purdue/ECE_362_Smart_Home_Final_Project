@@ -28,6 +28,8 @@ volatile enum KeypadState KEYPAD_STATE = TEMPERATURE_ENTRY; // TEMPERATURE_ENTRY
 /**
  * PINS USED:
  * - PA8: Buzzer PWM
+ * - PA&: MOTOR PWM
+ * 
  * 
  * TIMERS USED:
  * - TIM1: Buzzer PWM
@@ -71,3 +73,5 @@ int main()
     for (;;)
         asm("wfi");
 }
+
+
