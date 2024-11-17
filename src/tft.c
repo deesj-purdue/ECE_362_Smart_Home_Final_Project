@@ -23,11 +23,16 @@ void init_spi1_slow()
     GPIOB->AFR[0] &= ~(GPIO_AFRL_AFRL3_Msk | GPIO_AFRL_AFRL4_Msk | GPIO_AFRL_AFRL5_Msk);
     GPIOB->AFR[0] |= (0x0 << GPIO_AFRL_AFRL3_Pos) | (0x0 << GPIO_AFRL_AFRL4_Pos) | (0x0 << GPIO_AFRL_AFRL5_Pos); // Set AF0 for SPI1
 
-    SPI1->CR1 |= SPI_CR1_BR;                                             // slowest baud rate
-    SPI1->CR1 |= SPI_CR1_MSTR;                                           // master mode
-    SPI1->CR2 = (SPI1->CR2 & ~SPI_CR2_DS_Msk) | (0x7 << SPI_CR2_DS_Pos); // 8-bit word size
-    SPI1->CR1 |= SPI_CR1_SSM | SPI_CR1_SSI;                              // Software Slave Management, Internal Slave Select
-    SPI1->CR2 |= SPI_CR2_FRXTH;                                          // FIFO reception threshold
+    SPI1->CR1 |= SPI_CR1_BR; // slowest baud rate
+    // Piazza recommendation: f_PCLK/2
+    // SPI1->CR1 &= ~SPI_CR1_BR_Msk; // Clear the baud rate control bits
+    // SPI1->CR1 |= (0x0 << SPI_CR1_BR_Pos); // Set the baud rate control bits to 000 for f_PCLK/2
+
+    SPI1->CR1 |= SPI_CR1_MSTR; // master mode
+    SPI1->CR2 &= ~SPI_CR2_DS_Msk;
+    SPI1->CR2 |= SPI_CR2_DS_0 | SPI_CR2_DS_1 | SPI_CR2_DS_2; // 8-bit word size
+    SPI1->CR1 |= SPI_CR1_SSM | SPI_CR1_SSI;                  // Software Slave Management, Internal Slave Select
+    SPI1->CR2 |= SPI_CR2_FRXTH;                              // FIFO reception threshold
 
     SPI1->CR1 |= SPI_CR1_SPE; // enable SPI
 }

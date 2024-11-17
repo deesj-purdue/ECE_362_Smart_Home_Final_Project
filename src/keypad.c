@@ -198,8 +198,8 @@ char get_keypress()
 void init_tim14_timer()
 {
     RCC->APB1ENR |= RCC_APB1ENR_TIM14EN;
-    TIM14->PSC = 48000 - 1;                     // 48 MHz / 48000 = 1 KHz
-    TIM14->ARR = (PASSWORD_TIMEOUT_MS / 5) - 1; // 1 KHz / 5000 = .2 Hz = 5 seconds   NOTE: weird scale by 5, I don't know why this is necessary but its the only way I got it to time correctly
+    TIM14->PSC = 48000 - 1;               // 48 MHz / 48000 = 1 KHz
+    TIM14->ARR = PASSWORD_TIMEOUT_MS - 1; // 1 KHz / 5000 = .2 Hz = 5 seconds
     TIM14->DIER |= TIM_DIER_UIE;
     TIM14->CR1 |= TIM_CR1_CEN;
     NVIC_EnableIRQ(TIM14_IRQn);

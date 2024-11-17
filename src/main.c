@@ -46,6 +46,8 @@ volatile enum KeypadState KEYPAD_STATE = TEMPERATURE_ENTRY; // TEMPERATURE_ENTRY
  *
  */
 
+void internal_clock();
+
 void update_peripheral_states()
 {
     update_buzzer();
@@ -69,7 +71,7 @@ void boot_sequence()
     for (int i = 0; i < 10; i++)
     {
         set_led(i % 3, 1);
-        nano_wait(10000000);
+        nano_wait(30000000);
         set_led(i % 3, 0);
     }
 
@@ -101,14 +103,15 @@ int main()
      * when in PASSWORD_ENTRY, activate keypad for password entry instead of temperature control and start timeout timer
      */
 
+    internal_clock();
     init_peripherals();
     boot_sequence();
 
-    SECURITY_STATE = PASSWORD; // DEBUG initial state
+    SECURITY_STATE = ARMED; // DEBUG initial state
 
-    // parse_command("lcd_init");
-    // parse_command("clear 0000");
-    // parse_command("drawfillrect 0 0 200 200 0f0f");
+    parse_command("lcd_init");
+    parse_command("clear 0000");
+    // parse_command("drawline 1 0 200 199 0f0f");
 
     for (;;)
     {
