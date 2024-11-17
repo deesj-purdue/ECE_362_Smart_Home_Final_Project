@@ -34,7 +34,7 @@ void TIM1_BRK_UP_TRG_COM_IRQHandler()
     if (BUZZER_FREQ < MIN_BUZZER_FREQ)
         BUZZER_FREQ = MAX_BUZZER_FREQ;
     else
-        BUZZER_FREQ -= 2; // increment frequency
+        BUZZER_FREQ -= 1; // increment frequency
 }
 
 void update_buzzer()
@@ -47,20 +47,20 @@ void update_buzzer()
 
 void init_led()
 {
-    RCC->AHBENR |= RCC_AHBENR_GPIOBEN;
+    RCC->AHBENR |= RCC_AHBENR_GPIOAEN;
 
-    GPIOB->MODER |= 0b01 << GPIO_MODER_MODER5_Pos | 0b01 << GPIO_MODER_MODER6_Pos | 0b01 << GPIO_MODER_MODER7_Pos; // set PB5, 6, 7 to output
-    GPIOB->PUPDR |= 0b10 << GPIO_PUPDR_PUPDR5_Pos | 0b10 << GPIO_PUPDR_PUPDR6_Pos | 0b10 << GPIO_PUPDR_PUPDR7_Pos; // pull down PB5, 6, 7
+    GPIOA->MODER |= 0b01 << GPIO_MODER_MODER5_Pos | 0b01 << GPIO_MODER_MODER6_Pos | 0b01 << GPIO_MODER_MODER7_Pos; // set PB5, 6, 7 to output
+    GPIOA->PUPDR |= 0b10 << GPIO_PUPDR_PUPDR5_Pos | 0b10 << GPIO_PUPDR_PUPDR6_Pos | 0b10 << GPIO_PUPDR_PUPDR7_Pos; // pull down PB5, 6, 7
 
-    GPIOB->ODR |= 0b111 << 5; // turn off LEDs
+    GPIOA->ODR |= 0b111 << 5; // turn off LEDs
 }
 
 void set_led(int led, int state)
 {
     if (state)
-        GPIOB->ODR &= ~(1 << (led + 5)); // turn on LED
+        GPIOA->ODR &= ~(1 << (led + 5)); // turn on LED
     else
-        GPIOB->ODR |= 1 << (led + 5); // turn off LED
+        GPIOA->ODR |= 1 << (led + 5); // turn off LED
 }
 
 void update_led()
