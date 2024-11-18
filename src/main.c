@@ -1,7 +1,7 @@
 /**
  ******************************************************************************
  * @file    main.c
- * @author  Jackson Dees,
+ * @author  Jackson Dees, Tristen Hood, Quincy Tordill, Grant Sylvester
  * @date    Oct 28, 2024
  * @brief   ECE 362 Smart Home
  ******************************************************************************
@@ -10,6 +10,7 @@
 #include "helpers.h"
 #include "buzzer.h"
 #include "keypad.h"
+#include "fan.h"
 
 volatile float CURRENT_TEMPERATURE = 0; // Celsius
 
@@ -76,6 +77,12 @@ void boot_sequence()
     update_buzzer();
 }
 
+void fan_control()
+{
+
+    motor_on_off();
+}
+
 int main()
 {
     /**
@@ -102,6 +109,7 @@ int main()
 
     init_peripherals();
     boot_sequence();
+    
 
     SECURITY_STATE = PASSWORD; // DEBUG initial state
 
@@ -113,6 +121,7 @@ int main()
         {
         case DISARMED:
             get_temperature_input();
+            fan_control();
             break;
         case ARMED:
             // add door sensor interrupt
