@@ -34,9 +34,9 @@ volatile enum KeypadState KEYPAD_STATE = TEMPERATURE_ENTRY; // TEMPERATURE_ENTRY
  * - PA1: Temperature sensor ADC
  * - PA8: Buzzer PWM
  *
- * - PB5: Red LED
- * - PB6: Green LED
- * - PB7: Blue LED
+ * - PA3: Red LED
+ * - PA4: Green LED
+ * - PA5: Blue LED
  *
  * - PC0-3: Keypad Rows
  * - PC4-7: Keypad Columns
