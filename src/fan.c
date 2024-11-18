@@ -3,7 +3,6 @@
 #include "fan.h"
 
 
-
 void init_tim3_fan_pwm()
 {
     /* setup GPIOA */
@@ -37,7 +36,7 @@ void init_tim3_fan_pwm()
 
 void motor_on_off()
 {
-    init_tim3_fan_pwm();
+    // init_tim3_fan_pwm();
     // if (CURRENT_TEMPERATURE >= 27)
     // {
         TIM3 -> CR1 |= TIM_CR1_CEN;

@@ -12,6 +12,7 @@
 #include "keypad.h"
 #include "halleffect.h"
 #include "fan.h"
+#include "temperature.h"
 
 volatile float CURRENT_TEMPERATURE = 0; // Celsius
 
@@ -69,6 +70,7 @@ void init_peripherals()
     init_led();
     init_tim7_keypad();
     init_tim14_timer();
+    init_tim3_fan_pwm();
 }
 
 void boot_sequence()
@@ -120,10 +122,7 @@ void update_thermostat()
         FAN_SPEED = MIN_FAN_SPEED;
 }
 
-void fan_control()
-{
-    motor_on_off();
-}
+
 
 int main()
 {
@@ -149,12 +148,12 @@ int main()
      * when in PASSWORD_ENTRY, activate keypad for password entry instead of temperature control and start timeout timer
      */
 
-    internal_clock();
-    init_peripherals();
-    boot_sequence();
-    fan_control();
+        internal_clock();
+        init_peripherals();
+        boot_sequence();
+        motor_on_off();
 
-    SECURITY_STATE = ARMED; // DEBUG initial state
+        SECURITY_STATE = ARMED; // DEBUG initial state
 
     for (;;)
     {
@@ -167,7 +166,7 @@ int main()
         {
         case DISARMED:
             get_temperature_input();
-            fan_control();
+            motor_on_off();
             break;
         case ARMED:
             // add door sensor interrupt
