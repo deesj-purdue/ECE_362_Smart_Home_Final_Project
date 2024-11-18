@@ -1,4 +1,5 @@
 #include "keypad.h"
+#include "halleffect.h"
 
 // Keypad globals initialization
 volatile uint8_t col = 0;
@@ -66,19 +67,53 @@ void init_tim7_keypad()
 
 void TIM7_IRQHandler()
 {
+
+    update_door_state();
+    
     TIM7->SR &= ~TIM_SR_UIF;
     int rows = read_rows();
     update_history(col, rows);
     col = (col + 1) & 3;
     drive_column(col);
+
 }
 
 void get_password_string()
 {
-    for (int i = 0; i < PASSWORD_LENGTH; i++)
-    {
+    int zero_fill_ctr = 0;
+    while(zero_fill_ctr < PASSWORD_LENGTH) {
+        password_entry_str[zero_fill_ctr++] = '0';
+    }
+    password_entry_str[zero_fill_ctr] = '\0';
+    
+    bool enter_pressed = false;
+    int curr_ind = 0;
+    while(!enter_pressed) {
         char key = get_keypress();
-        password_entry_str[i] = key;
+        switch(key) {
+            case('0'): case('1'): 
+            case('2'): case('3'):
+            case('4'): case('5'): 
+            case('6'): case('7'):
+            case('8'): case('9'): //Just a digit, replaces one of the placeholder 0s
+                if(curr_ind == PASSWORD_LENGTH) {
+                    password_entry_str[curr_ind - 1] = key; //if password is full, override last digit and don't update curr_ind
+                } else if(curr_ind < PASSWORD_LENGTH) {
+                    password_entry_str[curr_ind++] = key;
+                }
+                break;
+            case('A'): //Enter is A, exits loop to return current password entry string
+                enter_pressed = true;
+                break;
+            case('B'): //Backspace is B, decrements curr_ind and replaces it with a placeholder 0
+                if(curr_ind != 0) {
+                    password_entry_str[--curr_ind] = '0';
+                }
+                break;
+            default:   //C, D, #, and * will do nothing in this function
+                break;
+            
+        }
     }
     password_entry_str[PASSWORD_LENGTH] = '\0';
 
@@ -198,8 +233,8 @@ char get_keypress()
 void init_tim14_timer()
 {
     RCC->APB1ENR |= RCC_APB1ENR_TIM14EN;
-    TIM14->PSC = 48000 - 1;                     // 48 MHz / 48000 = 1 KHz
-    TIM14->ARR = (PASSWORD_TIMEOUT_MS / 5) - 1; // 1 KHz / 5000 = .2 Hz = 5 seconds   NOTE: weird scale by 5, I don't know why this is necessary but its the only way I got it to time correctly
+    TIM14->PSC = 48000 - 1;               // 48 MHz / 48000 = 1 KHz
+    TIM14->ARR = PASSWORD_TIMEOUT_MS - 1; // 1 KHz / 5000 = .2 Hz = 5 seconds
     TIM14->DIER |= TIM_DIER_UIE;
     TIM14->CR1 |= TIM_CR1_CEN;
     NVIC_EnableIRQ(TIM14_IRQn);

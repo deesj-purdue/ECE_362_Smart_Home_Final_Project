@@ -10,7 +10,7 @@
 #include "helpers.h"
 #include "buzzer.h"
 #include "keypad.h"
-#include "fan.h"
+#include "halleffect.h"
 
 volatile float CURRENT_TEMPERATURE = 0; // Celsius
 
@@ -28,6 +28,8 @@ volatile enum KeypadState KEYPAD_STATE = TEMPERATURE_ENTRY; // TEMPERATURE_ENTRY
 
 /**
  * PINS USED:
+ * - PA0: Hall Effect Sensor
+ * - PA1: Temperature sensor ADC
  * - PA8: Buzzer PWM
  *
  * - PB5: Red LED
@@ -39,15 +41,19 @@ volatile enum KeypadState KEYPAD_STATE = TEMPERATURE_ENTRY; // TEMPERATURE_ENTRY
  *
  * TIMERS USED:
  * - TIM1: Buzzer PWM
- * - TIM7: Keypad polling
+ * - TIM2: Temerature sensor
+ * - TIM7: Keypad polling + Hall Effect
  * - TIM14: Keypad timeout
  *
  * PERIPHERALS USED:
  *
  */
 
+void internal_clock();
+
 void update_peripheral_states()
 {
+    update_door_state();
     update_buzzer();
     update_keypad_state();
     update_led();
@@ -56,6 +62,9 @@ void update_peripheral_states()
 void init_peripherals()
 {
     init_tim1_buzzer_pwm();
+    setup_adc1_temperature();
+    init_tim2();
+    init_halleffect();
     init_led();
     init_tim7_keypad();
     init_tim14_timer();
@@ -69,7 +78,7 @@ void boot_sequence()
     for (int i = 0; i < 10; i++)
     {
         set_led(i % 3, 1);
-        nano_wait(10000000);
+        nano_wait(30000000);
         set_led(i % 3, 0);
     }
 
@@ -77,10 +86,37 @@ void boot_sequence()
     update_buzzer();
 }
 
-void fan_control()
+void update_security()
 {
+    if (SECURITY_STATE == ARMED && DOOR_STATE == OPEN)
+        SECURITY_STATE = PASSWORD;
+}
 
-    motor_on_off();
+void update_thermostat()
+{
+    /**
+     * fan speed equal to a scaled value of temperature difference
+     *
+     * Room temperature is 20
+     * Skin temperature is ~30 normally
+     * Hot skin temperature can get up to 40
+     *
+     * With scaling factor 5:
+     *
+     * 20 - 20 = 0 * 3 = 0
+     * 30 - 20 = 10 * 5 = 50
+     * 40 - 20 = 20 * 5 = 100
+     * This ranges about the whole fan speed range for our demo
+     */
+
+    int temp_diff = CURRENT_TEMPERATURE - TARGET_TEMPERATURE;
+    int scaling_factor = 5;
+    int fan_speed = temp_diff * scaling_factor > MAX_FAN_SPEED ? MAX_FAN_SPEED : temp_diff * scaling_factor;
+
+    if (CURRENT_TEMPERATURE < TARGET_TEMPERATURE)
+        FAN_SPEED = fan_speed;
+    else
+        FAN_SPEED = MIN_FAN_SPEED;
 }
 
 int main()
@@ -107,14 +143,17 @@ int main()
      * when in PASSWORD_ENTRY, activate keypad for password entry instead of temperature control and start timeout timer
      */
 
+    internal_clock();
     init_peripherals();
     boot_sequence();
-    
 
-    SECURITY_STATE = PASSWORD; // DEBUG initial state
+    SECURITY_STATE = ARMED; // DEBUG initial state
 
     for (;;)
     {
+        update_security();
+        update_thermostat();
+
         update_peripheral_states();
 
         switch (SECURITY_STATE)
