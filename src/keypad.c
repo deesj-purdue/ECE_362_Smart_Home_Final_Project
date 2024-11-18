@@ -1,4 +1,5 @@
 #include "keypad.h"
+#include "halleffect.h"
 
 // Keypad globals initialization
 volatile uint8_t col = 0;
@@ -66,11 +67,15 @@ void init_tim7_keypad()
 
 void TIM7_IRQHandler()
 {
+
+    update_door_state();
+    
     TIM7->SR &= ~TIM_SR_UIF;
     int rows = read_rows();
     update_history(col, rows);
     col = (col + 1) & 3;
     drive_column(col);
+
 }
 
 void get_password_string()
