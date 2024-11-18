@@ -86,6 +86,39 @@ void boot_sequence()
     update_buzzer();
 }
 
+void update_security()
+{
+    if (SECURITY_STATE == ARMED && DOOR_STATE == OPEN)
+        SECURITY_STATE = PASSWORD;
+}
+
+void update_thermostat()
+{
+    /**
+     * fan speed equal to a scaled value of temperature difference
+     *
+     * Room temperature is 20
+     * Skin temperature is ~30 normally
+     * Hot skin temperature can get up to 40
+     *
+     * With scaling factor 5:
+     *
+     * 20 - 20 = 0 * 3 = 0
+     * 30 - 20 = 10 * 5 = 50
+     * 40 - 20 = 20 * 5 = 100
+     * This ranges about the whole fan speed range for our demo
+     */
+
+    int temp_diff = CURRENT_TEMPERATURE - TARGET_TEMPERATURE;
+    int scaling_factor = 5;
+    int fan_speed = temp_diff * scaling_factor > MAX_FAN_SPEED ? MAX_FAN_SPEED : temp_diff * scaling_factor;
+
+    if (CURRENT_TEMPERATURE < TARGET_TEMPERATURE)
+        FAN_SPEED = fan_speed;
+    else
+        FAN_SPEED = MIN_FAN_SPEED;
+}
+
 int main()
 {
     /**
@@ -118,8 +151,8 @@ int main()
 
     for (;;)
     {
-        if (SECURITY_STATE == ARMED && DOOR_STATE == OPEN)
-            SECURITY_STATE = PASSWORD;
+        update_security();
+        update_thermostat();
 
         update_peripheral_states();
 
