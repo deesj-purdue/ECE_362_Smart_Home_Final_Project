@@ -43,7 +43,7 @@ volatile enum KeypadState KEYPAD_STATE = TEMPERATURE_ENTRY; // TEMPERATURE_ENTRY
  *
  * TIMERS USED:
  * - TIM1: Buzzer PWM
- * - TIM2: Temerature sensor
+ * - TIM2: Temprature sensor
  * - TIM7: Keypad polling + Hall Effect
  * - TIM14: Keypad timeout
  *
@@ -151,7 +151,7 @@ int main()
         internal_clock();
         init_peripherals();
         boot_sequence();
-        motor_on_off();
+        
 
         SECURITY_STATE = ARMED; // DEBUG initial state
 
@@ -159,7 +159,7 @@ int main()
     {
         update_security();
         update_thermostat();
-        
+        motor_on_off();
         update_peripheral_states();
 
         switch (SECURITY_STATE)

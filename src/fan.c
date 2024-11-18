@@ -20,7 +20,7 @@ void init_tim3_fan_pwm()
     // TIM3->BDTR |= TIM_BDTR_MOE; // enable main output
     // TIM3->DIER |= TIM_DIER_UIE; // enable update interrupt
 
-    TIM3->PSC = 48000 - 1;                   // 48 MHz / 4800 = 10 kHz
+    TIM3->PSC = 4800 - 1;                   // 48 MHz / 4800 = 10 kHz
     TIM3->ARR = 10 - 1;      // 10 kHz / 10 = 1000 Hz
     
 
