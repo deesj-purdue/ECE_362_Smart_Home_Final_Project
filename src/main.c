@@ -118,6 +118,9 @@ int main()
 
     for (;;)
     {
+        if (SECURITY_STATE == ARMED && DOOR_STATE == OPEN)
+            SECURITY_STATE = PASSWORD;
+
         update_peripheral_states();
 
         switch (SECURITY_STATE)
