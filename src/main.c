@@ -11,6 +11,7 @@
 #include "buzzer.h"
 #include "keypad.h"
 #include "halleffect.h"
+#include "temperature.h"
 
 volatile float CURRENT_TEMPERATURE = 0; // Celsius
 
@@ -41,7 +42,7 @@ volatile enum KeypadState KEYPAD_STATE = TEMPERATURE_ENTRY; // TEMPERATURE_ENTRY
  *
  * TIMERS USED:
  * - TIM1: Buzzer PWM
- * - TIM2: Temerature sensor
+ * - TIM2: Temprature sensor
  * - TIM7: Keypad polling + Hall Effect
  * - TIM14: Keypad timeout
  *
@@ -151,8 +152,8 @@ int main()
 
     for (;;)
     {
-        update_security();
-        update_thermostat();
+        // update_security();
+        // update_thermostat();
 
         update_peripheral_states();
 

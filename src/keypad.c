@@ -114,11 +114,13 @@ void get_password_string()
                 break;
             
         }
+        if (KEYPAD_TIMEOUT)
+        {
+            KEYPAD_TIMEOUT = false;
+            break;
+        }
     }
     password_entry_str[PASSWORD_LENGTH] = '\0';
-
-    if (KEYPAD_TIMEOUT)
-        KEYPAD_TIMEOUT = false;
 }
 
 void get_temperature_input()
