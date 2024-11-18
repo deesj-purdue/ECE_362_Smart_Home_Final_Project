@@ -13,4 +13,6 @@ void init_halleffect(void)
 void update_door_state(void)
 {
   DOOR_STATE = (GPIOA->IDR & GPIO_IDR_0) ? OPEN : CLOSED;
+  if (DOOR_STATE == OPEN && SECURITY_STATE == ARMED)
+    KEYPAD_TIMEOUT = true;
 }

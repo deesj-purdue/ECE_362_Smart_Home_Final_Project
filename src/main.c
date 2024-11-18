@@ -152,8 +152,8 @@ int main()
 
     for (;;)
     {
-        // update_security();
-        // update_thermostat();
+        update_security();
+        update_thermostat();
 
         update_peripheral_states();
 

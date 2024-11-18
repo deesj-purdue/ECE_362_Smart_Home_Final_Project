@@ -67,9 +67,8 @@ void init_tim7_keypad()
 
 void TIM7_IRQHandler()
 {
-
     update_door_state();
-    
+
     TIM7->SR &= ~TIM_SR_UIF;
     int rows = read_rows();
     update_history(col, rows);
