@@ -16,7 +16,7 @@
 
 # ⏚ Pins in use
 - PC0-7 in use by keypad
-- PB5-7 in use by LEDs
+- PA5-7 in use by LEDs
 - PA1 in use by Temperature Sensor
 - PA0 in use by Hall Effect Sensor
 - PA8 in use by Buzzer
