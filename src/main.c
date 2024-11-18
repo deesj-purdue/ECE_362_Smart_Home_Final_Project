@@ -11,6 +11,7 @@
 #include "buzzer.h"
 #include "keypad.h"
 #include "halleffect.h"
+#include "fan.h"
 
 volatile float CURRENT_TEMPERATURE = 0; // Celsius
 
@@ -119,6 +120,11 @@ void update_thermostat()
         FAN_SPEED = MIN_FAN_SPEED;
 }
 
+void fan_control()
+{
+    motor_on_off();
+}
+
 int main()
 {
     /**
@@ -146,6 +152,7 @@ int main()
     internal_clock();
     init_peripherals();
     boot_sequence();
+    fan_control();
 
     SECURITY_STATE = ARMED; // DEBUG initial state
 
@@ -153,7 +160,7 @@ int main()
     {
         update_security();
         update_thermostat();
-
+        
         update_peripheral_states();
 
         switch (SECURITY_STATE)

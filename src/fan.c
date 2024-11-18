@@ -31,7 +31,7 @@ void init_tim3_fan_pwm()
     // TIM3 -> SR &= ~TIM_SR_UIF;
     // TIM3 -> CR1 |= TIM_CR1_ARPE;                       // enable OC1
 
-    TIM3->CCR1 =  500; // 80% duty cycle
+    TIM3->CCR1 =  500; // 50% duty cycle
 
 }
 
