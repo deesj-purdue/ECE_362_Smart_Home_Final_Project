@@ -37,12 +37,12 @@ void init_tim3_fan_pwm()
 void motor_on_off()
 {
     // init_tim3_fan_pwm();
-    // if (CURRENT_TEMPERATURE >= 27)
-    // {
+    if (CURRENT_TEMPERATURE >= 27)
+    {
         TIM3 -> CR1 |= TIM_CR1_CEN;
-    // }
-    // else{
-    //     TIM3 -> CR1 &= ~TIM_CR1_CEN;
-    // }
+    }
+    else{
+        TIM3 -> CR1 &= ~TIM_CR1_CEN;
+    }
 
 }
