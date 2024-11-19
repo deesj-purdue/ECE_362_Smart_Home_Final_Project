@@ -72,6 +72,7 @@ void init_peripherals()
     init_tim7_keypad();
     init_tim14_timer();
     init_tim3_fan_pwm();
+    LCD_Setup();
 }
 
 void boot_sequence()
@@ -152,7 +153,6 @@ int main()
         internal_clock();
         init_peripherals();
         boot_sequence();
-        
 
         SECURITY_STATE = ARMED; // DEBUG initial state
 

@@ -17,8 +17,6 @@ lcd_dev_t lcddev;
 #define DC_HIGH do { GPIOA->BSRR = GPIO_BSRR_BS_10; } while(0)
 #define DC_LOW  do { GPIOA->BSRR = GPIO_BSRR_BR_10; } while(0)
 
-//LCD helpers
-
 static void tft_select(int val)
 {
     if (val == 0) {
