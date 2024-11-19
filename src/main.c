@@ -92,21 +92,24 @@ void boot_sequence()
     for (int i = 0; i < 10; i++)
     {
         set_led(i % 3, 1);
-        nano_wait(30000000);
+        nano_wait(3000000);
         set_led(i % 3, 0);
     }
 
     SECURITY_STATE = DISARMED;
     update_buzzer();
 
-    nano_wait(1000000000);
+    nano_wait(100000000);
     LCD_Clear(BLACK);
 }
 
 void update_security()
 {
     if (SECURITY_STATE == ARMED && DOOR_STATE == OPEN)
+    {
         SECURITY_STATE = PASSWORD;
+        KEYPAD_TIMEOUT = true;
+    }
 }
 
 void update_thermostat()
@@ -127,10 +130,10 @@ void update_thermostat()
      */
 
     int temp_diff = CURRENT_TEMPERATURE - TARGET_TEMPERATURE;
-    int scaling_factor = 5;
+    int scaling_factor = 10;
     int fan_speed = temp_diff * scaling_factor > MAX_FAN_SPEED ? MAX_FAN_SPEED : temp_diff * scaling_factor;
 
-    if (CURRENT_TEMPERATURE < TARGET_TEMPERATURE)
+    if (CURRENT_TEMPERATURE > TARGET_TEMPERATURE)
         FAN_SPEED = fan_speed;
     else
         FAN_SPEED = MIN_FAN_SPEED;
@@ -145,6 +148,7 @@ void update_everything()
     motor_on_off();
     update_peripheral_states();
     update_security();
+    update_door_state();
 }
 
 int main()
@@ -180,8 +184,6 @@ int main()
 
     for (;;)
     {
-        update_everything();
-
         switch (SECURITY_STATE)
         {
         case DISARMED:

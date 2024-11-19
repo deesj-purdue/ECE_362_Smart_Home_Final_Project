@@ -1,6 +1,6 @@
 #include "temperature.h"
 
-#define NUM_READINGS 5
+#define NUM_READINGS 10
 
 float temperature_readings[NUM_READINGS] = {0};
 int current_index = 0;
@@ -31,6 +31,7 @@ void TIM2_IRQHandler(){
     while(!(ADC1->ISR & ADC_ISR_EOC));
 
     local_temp = ((ADC1->DR) * 2.4 / 4096 / .01);
+    local_temp = local_temp * 3 - 144; // CALIBRATION EQUATION: Room temp = 70, skin temp = ~83
 
     temperature_readings[current_index] = local_temp;
     current_index = (current_index + 1) % NUM_READINGS;

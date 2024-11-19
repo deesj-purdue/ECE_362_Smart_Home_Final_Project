@@ -710,8 +710,47 @@ void update_display(void)
 {
     if (LCD_ACTIVE == true)
     {
-        char str[16];
-        sprintf(str, "Temp: %d °F", (int)CURRENT_TEMPERATURE);
-        LCD_DrawString(0,0,WHITE,BLACK,str,16,0);
+        char current_temp[16];
+        char target_temp[16];
+        char fan_state[16];
+        char security_state[32];
+
+        sprintf(current_temp, "Temp: %d F    ", (int)CURRENT_TEMPERATURE);
+        LCD_DrawString(0, 0, WHITE,BLACK, current_temp, 16, 0);
+
+        sprintf(target_temp, "Target: %d F    ", (int)TARGET_TEMPERATURE);
+        LCD_DrawString(0, 16, WHITE,BLACK, target_temp, 16, 0);
+
+
+        if (FAN_SPEED == 0)
+        {
+            sprintf(fan_state, "Fan: Off      ");
+            LCD_DrawString(0, 64, WHITE, BLACK, fan_state, 16, 0);
+        }
+        else
+        {
+            sprintf(fan_state, "Fan: %d%%     ", FAN_SPEED);
+            LCD_DrawString(0, 64, RED, BLACK, fan_state, 16, 0);
+        }
+
+        switch (SECURITY_STATE)
+        {
+            case DISARMED:
+                sprintf(security_state, "Security: Disarmed            ");
+                LCD_DrawString(0, 128, WHITE, BLACK, security_state, 16, 0);
+                break;
+            case ARMED:
+                sprintf(security_state, "Security: Armed               ");
+                LCD_DrawString(0, 128, GREEN, BLACK, security_state, 16, 0);
+                break;
+            case ALARM:
+                sprintf(security_state, "** ALARM ** ALARM ** ALARM ** ");
+                LCD_DrawString(0, 128, RED, BLACK, security_state, 16, 0);
+                break;
+            case PASSWORD:
+                sprintf(security_state, "Please enter your password    ");
+                LCD_DrawString(0, 128, BLUE, BLACK, security_state, 16, 0);
+                break;
+        }
     }
 }

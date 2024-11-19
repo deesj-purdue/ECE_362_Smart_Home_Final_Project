@@ -17,7 +17,7 @@ void init_halleffect(void)
 
 void update_door_state(void)
 {
-  int current_state = (GPIOA->IDR & GPIO_IDR_0) ? CLOSED : OPEN;
+  int current_state = (GPIOA->IDR & GPIO_IDR_0) ? OPEN : CLOSED; // SWAP FOR DEBUG
 
   door_state_buffer[buffer_index] = current_state;
   buffer_index = (buffer_index + 1) % BOXCAR_SIZE;

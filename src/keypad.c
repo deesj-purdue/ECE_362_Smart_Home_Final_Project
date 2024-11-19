@@ -70,6 +70,7 @@ void TIM7_IRQHandler()
     col = (col + 1) & 3;
     drive_column(col);
 
+    
     update_everything();
 }
 
@@ -282,5 +283,4 @@ void TIM14_IRQHandler(void)
         KEYPAD_TIMEOUT = true;
         stop_password_timeout(); // Stop the timer when timeout occurs
     }
-    update_everything();
 }

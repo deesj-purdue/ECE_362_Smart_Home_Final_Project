@@ -15,8 +15,8 @@ void init_tim3_fan_pwm()
     GPIOA->AFR[0] &= ~(0xf << GPIO_AFRL_AFSEL6_Pos); // clear PA6 AF
     GPIOA->AFR[0] |= (0x1 << GPIO_AFRL_AFSEL6_Pos);  // set PA6 to TIM3 AF
 
-    TIM3->PSC = 4800 - 1; // 48 MHz / 4800 = 10 kHz
-    TIM3->ARR = 10 - 1;   // 10 kHz / 10 = 1000 Hz
+    TIM3->PSC = 48 - 1; // 48 MHz / 4800 = 10 kHz
+    TIM3->ARR = 1000 - 1;   // 10 kHz / 10 = 1000 Hz
 
     TIM3->CCMR1 |= TIM_CCMR1_OC1M_1 | TIM_CCMR1_OC1M_2; // set PWM mode 1 for OC1M
     TIM3->CCMR1 |= TIM_CCMR1_OC1PE;                     // enable preload register on TIM3_CCR1
@@ -30,23 +30,12 @@ void init_tim3_fan_pwm()
 void motor_on_off()
 {
     // init_tim3_fan_pwm();
-    printf("Current temperature: %f\n", CURRENT_TEMPERATURE);
     if (CURRENT_TEMPERATURE >= TARGET_TEMPERATURE)
     {
-        TIM3->CCR1 = 500;
-        TIM3->ARR = ((100 - FAN_SPEED) / 10) + 2;
+        TIM3->CCR1 = (FAN_SPEED + 100) * 5; // baseline fan speed is 50%
     }
     else
     {
-        nano_wait(10000);
-        TIM3->CCR1 &= 0;
-        nano_wait(10000);
-        TIM3->CCR1 &= 0;
-        nano_wait(10000);
         TIM3->CCR1 = 0;
-        nano_wait(10000);
-        TIM3->CCR1 = 0;
-
-        TIM3->ARR = 0;
     }
 }
