@@ -1,5 +1,12 @@
 #include "temperature.h"
 
+#define NUM_READINGS 5
+
+float temperature_readings[NUM_READINGS] = {0};
+int current_index = 0;
+float local_temp = 0;
+
+
 void setup_adc1_temperature(void) {
     RCC->AHBENR |= RCC_AHBENR_GPIOAEN;
     GPIOA->MODER |= 0xC;                    //initialize GPIOA 
@@ -23,14 +30,24 @@ void TIM2_IRQHandler(){
     ADC1->CR |= ADC_CR_ADSTART;
     while(!(ADC1->ISR & ADC_ISR_EOC));
 
-    CURRENT_TEMPERATURE = ((ADC1->DR)* 2.6 / 4096.0 / 0.01);
+    local_temp = ((ADC1->DR) * 2.4 / 4096 / .01);
+
+    temperature_readings[current_index] = local_temp;
+    current_index = (current_index + 1) % NUM_READINGS;
+    
+    float sum = 0;
+    for (int i = 0; i < NUM_READINGS; i++) {
+        sum += temperature_readings[i];
+    }
+    CURRENT_TEMPERATURE = sum / NUM_READINGS;
 }
+
 
 void init_tim2(void) {
   RCC->APB1ENR |= RCC_APB1ENR_TIM2EN;
 
-  TIM2->PSC = 47999;
-  TIM2->ARR = 999;
+  TIM2->PSC = 4799;
+  TIM2->ARR = 99;
   
   TIM2->DIER |= TIM_DIER_UIE;
 

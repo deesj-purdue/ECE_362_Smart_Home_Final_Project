@@ -3,4 +3,6 @@
 
 void nano_wait(unsigned int n);
 
+char* float_to_string(float input);
+
 #endif // HELPERS_H
