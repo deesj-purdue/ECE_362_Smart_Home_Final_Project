@@ -153,7 +153,8 @@ int main()
         internal_clock();
         init_peripherals();
         boot_sequence();
-
+        LCD_Clear(BLACK);
+        LCD_DrawChar(150, 150, WHITE, BLACK, 67, 16, 1);
         SECURITY_STATE = ARMED; // DEBUG initial state
 
     for (;;)
