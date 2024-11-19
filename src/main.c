@@ -1,7 +1,7 @@
 /**
  ******************************************************************************
  * @file    main.c
- * @author  Jackson Dees,
+ * @author  Jackson Dees, Tristen Hood, Quincy Tordill, Grant Sylvester
  * @date    Oct 28, 2024
  * @brief   ECE 362 Smart Home
  ******************************************************************************
@@ -12,6 +12,8 @@
 #include "keypad.h"
 #include "halleffect.h"
 #include "lcd.h"
+#include "fan.h"
+#include "temperature.h"
 
 volatile float CURRENT_TEMPERATURE = 0; // Celsius
 
@@ -33,16 +35,16 @@ volatile enum KeypadState KEYPAD_STATE = TEMPERATURE_ENTRY; // TEMPERATURE_ENTRY
  * - PA1: Temperature sensor ADC
  * - PA8: Buzzer PWM
  *
- * - PB5: Red LED
- * - PB6: Green LED
- * - PB7: Blue LED
+ * - PA3: Red LED
+ * - PA4: Green LED
+ * - PA5: Blue LED
  *
  * - PC0-3: Keypad Rows
  * - PC4-7: Keypad Columns
  *
  * TIMERS USED:
  * - TIM1: Buzzer PWM
- * - TIM2: Temerature sensor
+ * - TIM2: Temprature sensor
  * - TIM7: Keypad polling + Hall Effect
  * - TIM14: Keypad timeout
  *
@@ -69,6 +71,7 @@ void init_peripherals()
     init_led();
     init_tim7_keypad();
     init_tim14_timer();
+    init_tim3_fan_pwm();
 }
 
 void boot_sequence()
@@ -86,6 +89,41 @@ void boot_sequence()
     SECURITY_STATE = DISARMED;
     update_buzzer();
 }
+
+void update_security()
+{
+    if (SECURITY_STATE == ARMED && DOOR_STATE == OPEN)
+        SECURITY_STATE = PASSWORD;
+}
+
+void update_thermostat()
+{
+    /**
+     * fan speed equal to a scaled value of temperature difference
+     *
+     * Room temperature is 20
+     * Skin temperature is ~30 normally
+     * Hot skin temperature can get up to 40
+     *
+     * With scaling factor 5:
+     *
+     * 20 - 20 = 0 * 3 = 0
+     * 30 - 20 = 10 * 5 = 50
+     * 40 - 20 = 20 * 5 = 100
+     * This ranges about the whole fan speed range for our demo
+     */
+
+    int temp_diff = CURRENT_TEMPERATURE - TARGET_TEMPERATURE;
+    int scaling_factor = 5;
+    int fan_speed = temp_diff * scaling_factor > MAX_FAN_SPEED ? MAX_FAN_SPEED : temp_diff * scaling_factor;
+
+    if (CURRENT_TEMPERATURE < TARGET_TEMPERATURE)
+        FAN_SPEED = fan_speed;
+    else
+        FAN_SPEED = MIN_FAN_SPEED;
+}
+
+
 
 int main()
 {
@@ -111,20 +149,25 @@ int main()
      * when in PASSWORD_ENTRY, activate keypad for password entry instead of temperature control and start timeout timer
      */
 
-    internal_clock();
-    init_peripherals();
-    boot_sequence();
+        internal_clock();
+        init_peripherals();
+        boot_sequence();
+        
 
-    SECURITY_STATE = ARMED; // DEBUG initial state
+        SECURITY_STATE = ARMED; // DEBUG initial state
 
     for (;;)
     {
+        update_security();
+        update_thermostat();
+        motor_on_off();
         update_peripheral_states();
 
         switch (SECURITY_STATE)
         {
         case DISARMED:
             get_temperature_input();
+            motor_on_off();
             break;
         case ARMED:
             // add door sensor interrupt
@@ -148,3 +191,5 @@ int main()
     for (;;)
         asm("wfi");
 }
+
+
