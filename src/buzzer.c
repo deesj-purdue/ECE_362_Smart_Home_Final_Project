@@ -49,8 +49,8 @@ void init_led()
 {
     RCC->AHBENR |= RCC_AHBENR_GPIOAEN;
 
-    GPIOA->MODER |= 0b01 << GPIO_MODER_MODER3_Pos | 0b01 << GPIO_MODER_MODER4_Pos | 0b01 << GPIO_MODER_MODER5_Pos; // set PB5, 6, 7 to output
-    GPIOA->PUPDR |= 0b10 << GPIO_PUPDR_PUPDR3_Pos | 0b10 << GPIO_PUPDR_PUPDR4_Pos | 0b10 << GPIO_PUPDR_PUPDR5_Pos; // pull down PB5, 6, 7
+    GPIOA->MODER |= 0b01 << GPIO_MODER_MODER3_Pos | 0b01 << GPIO_MODER_MODER4_Pos | 0b01 << GPIO_MODER_MODER5_Pos; // set PA 3, 4, 5 to output
+    GPIOA->PUPDR |= 0b10 << GPIO_PUPDR_PUPDR3_Pos | 0b10 << GPIO_PUPDR_PUPDR4_Pos | 0b10 << GPIO_PUPDR_PUPDR5_Pos; // pull down PA 3, 4, 5 to pull down
 
     GPIOA->ODR |= 0b111 << 3; // turn off LEDs
 }
