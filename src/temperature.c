@@ -23,7 +23,7 @@ void TIM2_IRQHandler(){
     ADC1->CR |= ADC_CR_ADSTART;
     while(!(ADC1->ISR & ADC_ISR_EOC));
 
-    CURRENT_TEMPERATURE = ((ADC1->DR) * 3.3) / 4096.0 / 0.01;
+    CURRENT_TEMPERATURE = ((ADC1->DR)* 2.6 / 4096.0 / 0.01);
 }
 
 void init_tim2(void) {
