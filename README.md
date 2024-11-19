@@ -20,3 +20,10 @@
 - PA1 in use by Temperature Sensor
 - PA0 in use by Hall Effect Sensor
 - PA8 in use by Buzzer
+
+- LCD:
+    - PA4 is CS
+    - PA11 is nRESET
+    - PA10 is DC
+    - PA7 is MOSI
+    - PA5 is SCK

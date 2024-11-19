@@ -11,6 +11,7 @@
 #include "buzzer.h"
 #include "keypad.h"
 #include "halleffect.h"
+#include "lcd.h"
 
 volatile float CURRENT_TEMPERATURE = 0; // Celsius
 
