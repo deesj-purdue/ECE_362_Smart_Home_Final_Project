@@ -62,4 +62,6 @@ void LCD_DrawFillRectangle(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, u
 void LCD_DrawChar(uint16_t x,uint16_t y,uint16_t fc, uint16_t bc, char num, uint8_t size, uint8_t mode);
 void LCD_DrawString(uint16_t x,uint16_t y, uint16_t fc, uint16_t bg, const char *p, uint8_t size, uint8_t mode);
 
+void update_display();
+
 #endif

@@ -42,14 +42,15 @@ void TIM2_IRQHandler(){
     CURRENT_TEMPERATURE = sum / NUM_READINGS;
 
     update_everything();
+    update_display();
 }
 
 
 void init_tim2(void) {
   RCC->APB1ENR |= RCC_APB1ENR_TIM2EN;
 
-  TIM2->PSC = 4799;
-  TIM2->ARR = 99;
+  TIM2->PSC = 48000 - 1;
+  TIM2->ARR = 100 - 1;
   
   TIM2->DIER |= TIM_DIER_UIE;
 

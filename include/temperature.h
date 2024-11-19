@@ -3,6 +3,7 @@
 
 #include "globals.h"
 #include "main.h"
+#include "lcd.h"
 
 /**
  * @brief Initialize ADC1 to input from the Temperature sensor

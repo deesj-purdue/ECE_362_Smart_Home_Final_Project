@@ -705,3 +705,13 @@ void LCD_DrawString(uint16_t x,uint16_t y, uint16_t fc, uint16_t bg, const char 
     }
     lcddev.select(0);
 }
+
+void update_display(void)
+{
+    if (LCD_ACTIVE == true)
+    {
+        char str[16];
+        sprintf(str, "Temp: %d °F", (int)CURRENT_TEMPERATURE);
+        LCD_DrawString(0,0,WHITE,BLACK,str,16,0);
+    }
+}

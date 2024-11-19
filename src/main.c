@@ -29,6 +29,8 @@ volatile enum DoorState DOOR_STATE = CLOSED;                // OPEN, CLOSED
 volatile enum SecurityState SECURITY_STATE = DISARMED;      // DISARMED, ARMED, PASSWORD, ALARM
 volatile enum KeypadState KEYPAD_STATE = TEMPERATURE_ENTRY; // TEMPERATURE_ENTRY, PASSWORD_ENTRY
 
+volatile bool LCD_ACTIVE = false;
+
 /**
  * PINS USED:
  * - PA0: Hall Effect Sensor
@@ -134,6 +136,9 @@ void update_thermostat()
         FAN_SPEED = MIN_FAN_SPEED;
 }
 
+/**
+ * Updates everything in this function on every interrupt
+ */
 void update_everything()
 {
     update_thermostat();
@@ -171,6 +176,7 @@ int main()
     boot_sequence();
 
     SECURITY_STATE = ARMED; // DEBUG initial state
+    LCD_ACTIVE = true;
 
     for (;;)
     {

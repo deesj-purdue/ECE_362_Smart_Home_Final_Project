@@ -7,6 +7,7 @@
 #include <math.h>
 #include <stdbool.h>
 #include <string.h>
+#include <stdio.h>
 
 #define PASSWORD_LENGTH 4
 #define PASSWORD_TIMEOUT_S 5     // 5 seconds
@@ -54,6 +55,8 @@ extern volatile int BUZZER_FREQ; // modulating frequency for buzzer
 extern volatile enum DoorState DOOR_STATE;         // OPEN, CLOSED
 extern volatile enum SecurityState SECURITY_STATE; // DISARMED, ARMED, PASSWORD, ALARM
 extern volatile enum KeypadState KEYPAD_STATE;     // TEMPERATURE_ENTRY, PASSWORD_ENTRY
+
+extern volatile bool LCD_ACTIVE;
 
 extern volatile uint8_t col;
 extern volatile char *keymap;
