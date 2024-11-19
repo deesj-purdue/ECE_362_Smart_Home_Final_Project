@@ -40,6 +40,8 @@ void TIM2_IRQHandler(){
         sum += temperature_readings[i];
     }
     CURRENT_TEMPERATURE = sum / NUM_READINGS;
+
+    update_everything();
 }
 
 

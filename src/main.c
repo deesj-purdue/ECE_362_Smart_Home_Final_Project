@@ -16,10 +16,10 @@
 #include "temperature.h"
 
 volatile float CURRENT_TEMPERATURE = 0; // Celsius
-
-volatile float TARGET_TEMPERATURE = 0; // Celsius
+volatile float TARGET_TEMPERATURE = 0;  // Celsius
 
 volatile char CORRECT_PASSWORD[PASSWORD_LENGTH + 1] = "1234"; // 4 digit pin
+volatile bool KEYPAD_TIMEOUT = false;                         // true if keypad entry entry timed out (breaks out of keypad entry)
 
 volatile int FAN_SPEED = MIN_FAN_SPEED; // 0 - 100% speed range
 
@@ -56,7 +56,6 @@ void internal_clock();
 
 void update_peripheral_states()
 {
-    update_door_state();
     update_buzzer();
     update_keypad_state();
     update_led();
@@ -77,6 +76,14 @@ void init_peripherals()
 
 void boot_sequence()
 {
+    LCD_Clear(BLACK);
+    // LCD_DrawFillRectangle(50, 50, LCD_W - 50, LCD_H - 50, MAGENTA);
+    LCD_DrawString(0, 0, WHITE, BLACK, "ECE 362 Smart Home", 20, 0);
+    LCD_DrawString(0, 20, RED, BLACK, "Jackson Dees", 20, 0);
+    LCD_DrawString(0, 40, YELLOW, BLACK, "Tristen Hood", 20, 0);
+    LCD_DrawString(0, 60, GREEN, BLACK, "Quincy Tordill", 20, 0);
+    LCD_DrawString(0, 80, BLUE, BLACK, "Grant Sylvester", 20, 0);
+
     SECURITY_STATE = ALARM;
     update_buzzer();
 
@@ -89,6 +96,9 @@ void boot_sequence()
 
     SECURITY_STATE = DISARMED;
     update_buzzer();
+
+    nano_wait(1000000000);
+    LCD_Clear(BLACK);
 }
 
 void update_security()
@@ -124,7 +134,13 @@ void update_thermostat()
         FAN_SPEED = MIN_FAN_SPEED;
 }
 
-
+void update_everything()
+{
+    update_thermostat();
+    motor_on_off();
+    update_peripheral_states();
+    update_security();
+}
 
 int main()
 {
@@ -150,19 +166,15 @@ int main()
      * when in PASSWORD_ENTRY, activate keypad for password entry instead of temperature control and start timeout timer
      */
 
-        internal_clock();
-        init_peripherals();
-        boot_sequence();
-        LCD_Clear(BLACK);
-        LCD_DrawChar(150, 150, WHITE, BLACK, 67, 16, 1);
-        SECURITY_STATE = ARMED; // DEBUG initial state
+    internal_clock();
+    init_peripherals();
+    boot_sequence();
+
+    SECURITY_STATE = ARMED; // DEBUG initial state
 
     for (;;)
     {
-        update_security();
-        update_thermostat();
-        motor_on_off();
-        update_peripheral_states();
+        update_everything();
 
         switch (SECURITY_STATE)
         {
@@ -171,7 +183,6 @@ int main()
             motor_on_off();
             break;
         case ARMED:
-            // add door sensor interrupt
             get_temperature_input();
             break;
         case PASSWORD:
@@ -192,5 +203,3 @@ int main()
     for (;;)
         asm("wfi");
 }
-
-

@@ -33,7 +33,8 @@ void motor_on_off()
     printf("Current temperature: %f\n", CURRENT_TEMPERATURE);
     if (CURRENT_TEMPERATURE >= TARGET_TEMPERATURE)
     {
-        TIM3->CCR1 = (CURRENT_TEMPERATURE - TARGET_TEMPERATURE - 3) * 30;
+        TIM3->CCR1 = 500;
+        TIM3->ARR = ((100 - FAN_SPEED) / 10) + 2;
     }
     else
     {
@@ -45,5 +46,7 @@ void motor_on_off()
         TIM3->CCR1 = 0;
         nano_wait(10000);
         TIM3->CCR1 = 0;
+
+        TIM3->ARR = 0;
     }
 }

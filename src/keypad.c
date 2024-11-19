@@ -1,5 +1,4 @@
 #include "keypad.h"
-#include "halleffect.h"
 
 // Keypad globals initialization
 volatile uint8_t col = 0;
@@ -11,8 +10,6 @@ volatile int qin;          // Which queue entry is next for input
 volatile int qout;         // Which queue entry is next for output
 volatile char password_entry_str[PASSWORD_LENGTH + 1];
 volatile char temperature_entry_str[3];
-
-volatile bool KEYPAD_TIMEOUT = false;
 
 void update_keypad_state()
 {
@@ -67,15 +64,13 @@ void init_tim7_keypad()
 
 void TIM7_IRQHandler()
 {
-
-    update_door_state();
-    
     TIM7->SR &= ~TIM_SR_UIF;
     int rows = read_rows();
     update_history(col, rows);
     col = (col + 1) & 3;
     drive_column(col);
 
+    update_everything();
 }
 
 void get_password_string()
@@ -125,32 +120,55 @@ void get_password_string()
 
 void get_temperature_input()
 {
-    TARGET_TEMPERATURE = 0;
-    for (int i = 0; i < 2; i++)
-    {
-        char key = get_keypress();
-        if (key == 'A')
-        {
-            SECURITY_STATE = ARMED;
-            return;
-        }
-        else if (key == 'B') // DEBUG for testing
-        {
-            SECURITY_STATE = PASSWORD;
-            return;
-        }
-
-        TARGET_TEMPERATURE += (key - '0') * pow(10, 1 - i);
+    int zero_fill_ctr = 0;
+    while(zero_fill_ctr < TEMPERATURE_LENGTH) {
+        temperature_entry_str[zero_fill_ctr++] = '0';
     }
+    temperature_entry_str[zero_fill_ctr] = '\0';
+    
+    bool enter_pressed = false;
+    int curr_ind = 0;
+    while(!enter_pressed) {
+        char key = get_keypress();
+        switch(key) {
+            case('0'): case('1'): 
+            case('2'): case('3'):
+            case('4'): case('5'): 
+            case('6'): case('7'):
+            case('8'): case('9'): //Just a digit, replaces one of the placeholder 0s
+                if(curr_ind == TEMPERATURE_LENGTH) {
+                    temperature_entry_str[curr_ind - 1] = key; //if password is full, override last digit and don't update curr_ind
+                } else if(curr_ind < TEMPERATURE_LENGTH) {
+                    temperature_entry_str[curr_ind++] = key;
+                }
+                break;
+            case('A'): //Enter is A, exits loop to return current password entry string
+                enter_pressed = true;
+                break;
+            case('B'): //Backspace is B, decrements curr_ind and replaces it with a placeholder 0
+                if(curr_ind != 0) {
+                    temperature_entry_str[--curr_ind] = '0';
+                }
+            case('#'): //Arm security is #, exits loop to return current password entry string
+                SECURITY_STATE = ARMED;
+                break;
+            default:   //C, D, #, and * will do nothing in this function
+                break;
+            
+        }
 
-    if (TARGET_TEMPERATURE < MIN_TEMPERATURE)
-        TARGET_TEMPERATURE = MIN_TEMPERATURE;
+        if(enter_pressed)
+        {
+            TARGET_TEMPERATURE = (temperature_entry_str[0] - '0') * 10 + (temperature_entry_str[1] - '0');
+        }
 
-    if (TARGET_TEMPERATURE > MAX_TEMPERATURE)
-        TARGET_TEMPERATURE = MAX_TEMPERATURE;
-
-    if (KEYPAD_TIMEOUT)
-        KEYPAD_TIMEOUT = false;
+        if (KEYPAD_TIMEOUT)
+        {
+            KEYPAD_TIMEOUT = false;
+            break;
+        }
+    }
+    temperature_entry_str[TEMPERATURE_LENGTH] = '\0';
 }
 
 // Keypad Helpers
@@ -264,4 +282,5 @@ void TIM14_IRQHandler(void)
         KEYPAD_TIMEOUT = true;
         stop_password_timeout(); // Stop the timer when timeout occurs
     }
+    update_everything();
 }

@@ -2,6 +2,7 @@
 #define BUZZER_H
 
 #include "globals.h"
+#include "main.h"
 
 /**
  * @brief Initialize TIM1 for PWM buzzer output

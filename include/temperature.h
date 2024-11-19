@@ -2,6 +2,7 @@
 #define TEMPERATURE_H
 
 #include "globals.h"
+#include "main.h"
 
 /**
  * @brief Initialize ADC1 to input from the Temperature sensor

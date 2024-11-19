@@ -2,6 +2,8 @@
 #define KEYPAD_H
 
 #include "globals.h"
+#include "halleffect.h"
+#include "main.h"
 
 /**
  * @brief Updates the keypad state based on the current SECURITY_STATE

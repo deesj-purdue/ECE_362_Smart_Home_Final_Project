@@ -18,6 +18,7 @@
 #define MIN_BUZZER_FREQ 500
 #define MAX_BUZZER_FREQ 1000
 
+#define TEMPERATURE_LENGTH 2
 #define MIN_TEMPERATURE 0
 #define MAX_TEMPERATURE 99
 
@@ -40,8 +41,8 @@ enum KeypadState
     PASSWORD_ENTRY
 };
 
-extern volatile float CURRENT_TEMPERATURE; // Celsius
-extern volatile float TARGET_TEMPERATURE;  // Celsius
+extern volatile float CURRENT_TEMPERATURE; // Fahrenheit
+extern volatile float TARGET_TEMPERATURE;  // Fahrenheit
 
 extern volatile char CORRECT_PASSWORD[PASSWORD_LENGTH + 1]; // 4 digit pin
 extern volatile bool KEYPAD_TIMEOUT;                        // true if keypad entry entry timed out (breaks out of keypad entry)
