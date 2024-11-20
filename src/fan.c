@@ -30,7 +30,7 @@ void init_tim3_fan_pwm()
 void motor_on_off()
 {
     // init_tim3_fan_pwm();
-    if (CURRENT_TEMPERATURE >= TARGET_TEMPERATURE)
+    if (FAN_SPEED > 0)
     {
         TIM3->CCR1 = (FAN_SPEED + 100) * 5; // baseline fan speed is 50%
     }
