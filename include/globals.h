@@ -10,8 +10,8 @@
 #include <stdio.h>
 
 #define PASSWORD_LENGTH 4
-#define PASSWORD_TIMEOUT_S 5     // 5 seconds
-#define PASSWORD_TIMEOUT_MS 5000 // 5 seconds
+#define PASSWORD_TIMEOUT_S 10     // seconds
+#define PASSWORD_TIMEOUT_MS (PASSWORD_TIMEOUT_S * 1000) // milliseconds
 
 #define MIN_FAN_SPEED 0
 #define MAX_FAN_SPEED 100

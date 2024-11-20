@@ -15,8 +15,8 @@
 #include "fan.h"
 #include "temperature.h"
 
-volatile float CURRENT_TEMPERATURE = 0; // Celsius
-volatile float TARGET_TEMPERATURE = 0;  // Celsius
+volatile float CURRENT_TEMPERATURE = 75; // Celsius
+volatile float TARGET_TEMPERATURE = 75;  // Celsius
 
 volatile char CORRECT_PASSWORD[PASSWORD_LENGTH + 1] = "1234"; // 4 digit pin
 volatile bool KEYPAD_TIMEOUT = false;                         // true if keypad entry entry timed out (breaks out of keypad entry)

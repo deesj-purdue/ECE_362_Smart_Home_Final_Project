@@ -30,8 +30,8 @@ void TIM2_IRQHandler(){
     ADC1->CR |= ADC_CR_ADSTART;
     while(!(ADC1->ISR & ADC_ISR_EOC));
 
-    local_temp = ((ADC1->DR) * 2.4 / 4096 / .01);
-    local_temp = local_temp * 3 - 144; // CALIBRATION EQUATION: Room temp = 70, skin temp = ~83
+    local_temp = ((ADC1->DR) * 2.5 / 4096 / .01);
+    // local_temp = local_temp * 3 /* - 130 */; // CALIBRATION EQUATION: Room temp = 70, skin temp = ~83
 
     temperature_readings[current_index] = local_temp;
     current_index = (current_index + 1) % NUM_READINGS;
